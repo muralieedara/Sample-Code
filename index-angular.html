@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="github">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex">
+
+    <title>Github Search</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+		<style type="text/css">
+
+		.search .input-group-addon{
+		background: white !important; 
+		}
+		.search .form-control{
+			border-right:0; 
+			box-shadow:0 0 0; 
+			border-color:#ccc;
+		}
+		.search button{
+			border:0;
+			background:transparent;
+		}
+		.mt-20{
+			margin-top: 20px;
+		}
+		</style>
+</head>
+<body>
+	<div class="container"  ng-controller="gitHubController">
+		<div class="row">
+	        <div class="col-sm-6 col-sm-offset-3">
+	            <div class="mt-20"> 
+	                <div class="input-group search">
+	                    <input type="text" class="form-control"  id="git-user" placeholder="Enter Git User Name and Press Enter"  ng-model="git_user" ng-keypress="($event.which === 13)?loadRepos():0">
+	                    <span class="input-group-addon">
+	                        <button type="submit">
+	                            <span class="glyphicon glyphicon-search"></span>
+	                        </button>  
+	                    </span>
+	                </div>
+	            </div>
+	            <ul class="list-group mt-20" id="results">		
+	            	<li class="list-group-item" ng-show="loading">requesting data from github ...</li>	  
+	            	<li class="list-group-item" ng-show="invalid_user">please check the user name ...</li>
+	            	
+	            	<li class="list-group-item" ng-show="no_repos">No Repos Found</li>
+	            	<li class="list-group-item" ng-repeat="repo in repoData">
+	            		<a href="{{repo.html_url}}" target="_blank">{{repo.name}}</a>
+	            	</li>
+				</ul>
+	        </div>
+		</div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.30/angular.min.js"></script> 
+	<script type="text/javascript">	
+	angular.module('github', [])
+	    .controller('gitHubController', ['$scope','$http', function($scope,$http) {
+	        $scope.loading = false;
+	        $scope.invalid_user = false;
+	        $scope.no_repos = false;
+	        $scope.repoData = [];
+	       
+	        
+	        $scope.loadRepos = function () {
+	        	$scope.loading = true;
+	        	$scope.invalid_user = false;
+				$scope.no_repos = false;
+	        	$scope.repoData = [];
+	        	var repos_url = "https://api.github.com/users/"+$scope.git_user+"/repos";;
+	            $http.get(repos_url)
+	                .success(function (data) {
+	                	$scope.loading = false;
+				        $scope.invalid_user = false;
+	                    $scope.repoData = data;
+	                    if(data.length === 0){
+							$scope.no_repos = true;
+	                    }
+	                })
+	                .error(function(data) {
+	                	$scope.loading = false;
+				        $scope.invalid_user = true;
+					});
+	        }
+
+	}]);
+	</script>
+</body>
+</html>

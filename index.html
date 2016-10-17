@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex">
+
+    <title>Github Search</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+		<style type="text/css">
+
+		.search .input-group-addon{
+			background: white !important; 
+		}
+		.search .form-control{
+			border-right:0; 
+			box-shadow:0 0 0; 
+			border-color:#ccc;
+		}
+		.search button{
+			border:0;
+			background:transparent;
+		}
+		.mt-20{
+			margin-top: 20px;
+		}
+		</style>
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+	        <div class="col-sm-6 col-sm-offset-3">
+	            <div class="mt-20"> 
+	                <div class="input-group search">
+	                    <input type="text" class="form-control"  id="git-user" placeholder="Enter Git User Name and Press Enter" >
+	                    <span class="input-group-addon">
+	                        <button type="submit">
+	                            <span class="glyphicon glyphicon-search"></span>
+	                        </button>  
+	                    </span>
+	                </div>
+	            </div>
+	            <ul class="list-group mt-20" id="results">			  
+				</ul>
+	        </div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	
+	$(function() {
+		function wrap_li(data){
+			return '<li class="list-group-item">'+data+'</li>'
+		}
+		function show_repositories(repos){
+			var list_items = "";
+	        $.each(repos, function(index) {
+              list_items = list_items + wrap_li('<a href="'+repos[index].html_url+'" target="_blank">'+repos[index].name + '</a>');
+            }); 
+            if(list_items.length === 0){
+				$('#results').html(wrap_li('No Repos Found'));
+            }else{
+            	$('#results').html(list_items);
+            }
+		}
+		function get_repos(git_user){
+			$('#results').html(wrap_li('requesting data from github ...'));
+			var url_api = "https://api.github.com/users/"+git_user+"/repos";
+			$.getJSON(url_api, function(repos){
+	          show_repositories(repos);                
+	        }).fail(function() {
+				$('#results').html(wrap_li('please check the user name ...'));
+		  	})
+		}
+		$('#git-user').keyup(function(e){
+		    if(e.keyCode == 13)
+		    {
+		        get_repos($(this).val());
+		    }
+		});
+	});
+	</script>
+</body>
+</html>
